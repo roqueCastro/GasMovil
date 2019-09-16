@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:fab="http://schemas.android.com/apk/res-auto"
+    tools:context=".Fragments.MovimientoFragment">
+
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/background_light"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/TextViewMensajeConfirmacionFM"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:background="@android:color/background_light"
+                android:text="Hola"
+                style="@style/styleMensajeAlert"
+                android:visibility="invisible"
+                />
+
+        </LinearLayout>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/idRecycler"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            />
+
+    </LinearLayout>
+
+
+    <com.getbase.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabM"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/fab_margin"
+        fab:backgroundTint="@color/colorLight"
+        fab:fab_icon="@drawable/ic_add"
+        fab:fab_colorPressed="@color/colorPrimaryDark"
+        fab:fab_colorNormal="@color/colorVerdeClaro"
+        fab:fab_size="normal"
+        fab:fab_title="Perfil"
+        />
+
+
+
+</FrameLayout>

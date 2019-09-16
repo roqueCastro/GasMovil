@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingRight="15dp"
+    android:paddingLeft="15dp"
+    android:orientation="vertical"
+    >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/btnInfoDA"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:drawableLeft="@drawable/ic_info"
+            android:drawableTint="@android:color/background_dark"
+            android:drawablePadding="8dp"
+            android:textSize="12dp"
+            android:text="Informacion"
+            />
+
+    </LinearLayout>
+
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:orientation="horizontal"
+        >
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/btnNovedadDA"
+            android:layout_weight="0.5"
+            android:gravity="center"
+            android:drawableLeft="@drawable/ic_notifications"
+            android:drawablePadding="8dp"
+            android:textSize="10dp"
+            android:text="Novedad"
+            />
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/btnConstruidaDA"
+            android:layout_weight="0.5"
+            android:gravity="center"
+            android:drawableLeft="@drawable/ic_done"
+            android:drawablePadding="8dp"
+            android:textSize="10dp"
+            android:text="Construida"
+            />
+
+    </LinearLayout>
+
+
+
+
+</LinearLayout>

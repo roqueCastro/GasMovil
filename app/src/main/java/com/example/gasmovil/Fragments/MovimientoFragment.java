@@ -29,6 +29,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.gasmovil.Adapter.ElementoAdapter;
 import com.example.gasmovil.Adapter.MovimientoAdapter;
+import com.example.gasmovil.Entidades.Codigo;
 import com.example.gasmovil.Entidades.Movimiento;
 import com.example.gasmovil.R;
 import com.example.gasmovil.Utilidades.Utilidades_Request;
@@ -58,6 +59,8 @@ public class MovimientoFragment extends Fragment {
 
     ArrayList<Movimiento> movimientos;
 
+    private Codigo codig;
+
     private SharedPreferences preferencias;
     String nom_base_datos = "usuarios_gas";
     String id;
@@ -76,6 +79,8 @@ public class MovimientoFragment extends Fragment {
         vista = inflater.inflate(R.layout.fragment_movimiento, container, false);
 
         movimientos = new ArrayList<>();
+
+        codig = Codigo.getIntanse();
 
         request = Volley.newRequestQueue(getContext());
         preferencias = this.getActivity().getSharedPreferences(nom_base_datos,getContext().MODE_PRIVATE);
@@ -158,6 +163,10 @@ public class MovimientoFragment extends Fragment {
 
         final EditText input = (EditText) viewInflated.findViewById(R.id.editTextstok);
 
+        if(codig.getCode() != null){
+            input.setText(codig.getCode());
+        }
+
         builder.setPositiveButton("Enviar", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -171,8 +180,10 @@ public class MovimientoFragment extends Fragment {
                 if(boardName.length() > 0){
                     if(valCodigo==0){
                         cargarWebServiceRegistroMovimiento(boardName);
+                        codig.setCode(null);
                     }else {
                         mensajeAlertaTextViewError("Este codigo ya Existe!.", 3000);
+                        codig.setCode(null);
                     }
 
                 }
@@ -180,6 +191,7 @@ public class MovimientoFragment extends Fragment {
                     mensajeAlertaTextViewError("No ingresastes ningun valor", 3000);
             }
         });
+
 
         AlertDialog dialog = builder.create();
         dialog.show();

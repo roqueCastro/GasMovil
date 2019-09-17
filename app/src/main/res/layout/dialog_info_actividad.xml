@@ -31,15 +31,32 @@
 
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/textViewFechaDA"
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="10dp"
-        android:textStyle="italic"
-        android:gravity="right"
-        android:layout_weight="1"
-        android:text="TextView" />
+        android:orientation="horizontal"
+        >
+        <ImageButton
+            android:id="@+id/btn_add_code"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/colorPrimary"
+            android:src="@drawable/ic_add"
+            />
+        <TextView
+            android:id="@+id/textViewFechaDA"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="10dp"
+            android:textStyle="italic"
+            android:gravity="right"
+            android:layout_weight="1"
+            android:text="TextView" />
+
+
+
+    </LinearLayout>
 
 
 </LinearLayout>

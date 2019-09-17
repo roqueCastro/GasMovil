@@ -1,6 +1,7 @@
 package com.example.gasmovil.Fragments;
 
 
+import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -17,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,6 +32,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.gasmovil.Adapter.ProgramacionAdapter;
 import com.example.gasmovil.Entidades.Actividad;
+import com.example.gasmovil.Entidades.Codigo;
 import com.example.gasmovil.Entidades.Movimiento;
 import com.example.gasmovil.OnClickListener.RecyclerItemClickListener;
 import com.example.gasmovil.R;
@@ -58,8 +61,9 @@ public class ProgramacionFragment extends Fragment implements SwipeRefreshLayout
     private JsonObjectRequest jsonObjectRequest;
     private StringRequest stringRequest;
 
-    ArrayList<Actividad> actividads;
+    ArrayList<Actividad> actividads, actividades;
 
+    private Codigo codig;
     private SharedPreferences preferencias;
     private String nom_base_datos = "usuarios_gas";
     private String id;
@@ -75,6 +79,9 @@ public class ProgramacionFragment extends Fragment implements SwipeRefreshLayout
         vista = inflater.inflate(R.layout.fragment_programacion, container, false);
 
         actividads = new ArrayList<>();
+        actividades = new ArrayList<>();
+
+        codig = Codigo.getIntanse();
 
         request = Volley.newRequestQueue(getContext());
         preferencias = this.getActivity().getSharedPreferences(nom_base_datos,getContext().MODE_PRIVATE);
@@ -92,7 +99,7 @@ public class ProgramacionFragment extends Fragment implements SwipeRefreshLayout
 
                     @Override
                     public void onItemClick(View view, int position) {
-                        String nombre = actividads.get(position).getNombre() + " " + actividads.get(position).getApellido();
+                        String nombre = actividades.get(position).getNombre() + " " + actividades.get(position).getApellido();
                         showAlertPrincipal(nombre, position);
                         // do whatever
                     }
@@ -117,6 +124,12 @@ public class ProgramacionFragment extends Fragment implements SwipeRefreshLayout
     }
 
     private void cargarWebServiceActivid(final String id) {
+        if(actividads.size()>0){
+            actividads.clear();
+        }
+        if (actividades.size()>0){
+            actividades.clear();
+        }
         String url = Utilidades_Request.HTTP + Utilidades_Request.IP + Utilidades_Request.CARPETA + "wsJsonConsultaProgramacion.php?id_user="+id;
 
         jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
@@ -126,9 +139,6 @@ public class ProgramacionFragment extends Fragment implements SwipeRefreshLayout
 
                 JSONArray json = response.optJSONArray("actividad");
                 Actividad actividad = null;
-                if(actividads.size()>0){
-                    actividads.clear();
-                }
 
                 try {
                     for (int i = 0; i < json.length(); i++) {
@@ -149,10 +159,7 @@ public class ProgramacionFragment extends Fragment implements SwipeRefreshLayout
                         actividads.add(actividad);
                     }
 
-                    //cargarWebServiceProgramacionAll(id);
-                    swipeRefresh.setRefreshing(false);
-                    ProgramacionAdapter adapter = new ProgramacionAdapter(actividads);
-                    recycler.setAdapter(adapter);
+                    cargarWebServiceProgramacionAll(id);
 
                 }catch (JSONException e) {
                     e.printStackTrace();
@@ -169,7 +176,8 @@ public class ProgramacionFragment extends Fragment implements SwipeRefreshLayout
     }
 
     private void cargarWebServiceProgramacionAll (String id){
-        String url = Utilidades_Request.HTTP + Utilidades_Request.IP + Utilidades_Request.CARPETA + "wsJsonConsultaProgramacion.php?id_user="+id;
+        String url = Utilidades_Request.HTTP + Utilidades_Request.IP + Utilidades_Request.CARPETA + "wsJsonConsultaProgramacionAll.php?id_user="+id;
+
 
         jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
             @Override
@@ -177,10 +185,70 @@ public class ProgramacionFragment extends Fragment implements SwipeRefreshLayout
                 // Toast.makeText(getApplicationContext(), response.toString(), Toast.LENGTH_SHORT).show();
 
 
+                Actividad actividad =null;
+                JSONArray json = response.optJSONArray("actividad_all");
+                JSONObject jsonObject;
 
-                   /* swipeRefresh.setRefreshing(false);
-                    ProgramacionAdapter adapter = new ProgramacionAdapter(actividads);
-                    recycler.setAdapter(adapter);*/
+                try {
+                    jsonObject=null;
+                    jsonObject = json.getJSONObject(0);
+
+                    if (jsonObject.optString("ID").equals("0") || jsonObject.optString("ID").equals("00") ){
+                        swipeRefresh.setRefreshing(false);
+                        ProgramacionAdapter adapter = new ProgramacionAdapter(actividads);
+                        recycler.setAdapter(adapter);
+                    }else{
+                        for (int i = 0; i < json.length(); i++) {
+
+                            jsonObject = null;
+                            jsonObject = json.getJSONObject(i);
+
+                            for (int a = 0; a < actividads.size(); a++ ){
+                                if(actividads.get(a).getId().toString().equals(jsonObject.getString("ID"))){
+                                    actividads.remove(a);
+                                    actividad = new Actividad();
+                                    actividad.setId(jsonObject.optInt("ID"));
+                                    actividad.setDireccion(jsonObject.optString("DIRECCION"));
+                                    actividad.setBarrio(jsonObject.optString("BARRIO"));
+                                    actividad.setCodigo(jsonObject.optString("CODIGO"));
+                                    actividad.setNombre(jsonObject.optString("USU_NOMBRE"));
+                                    actividad.setApellido(jsonObject.optString("USU_APELLIDO"));
+                                    actividad.setTelefono(jsonObject.optString("telefono"));
+                                    actividad.setFecha(jsonObject.optString("fecha"));
+                                    actividad.setObra(jsonObject.optString("OBRA"));
+                                    actividad.setNum_element(jsonObject.optString("NUM_ELEMENT"));
+                                    actividades.add(actividad);
+                                }
+                            }
+
+                        }
+
+                        for (int b = 0; b < actividads.size(); b++){
+                            actividad = new Actividad();
+                            actividad.setId(actividads.get(b).getId());
+                            actividad.setDireccion(actividads.get(b).getDireccion());
+                            actividad.setBarrio(actividads.get(b).getBarrio());
+                            actividad.setCodigo(actividads.get(b).getCodigo());
+                            actividad.setNombre(actividads.get(b).getNombre());
+                            actividad.setApellido(actividads.get(b).getApellido());
+                            actividad.setTelefono(actividads.get(b).getTelefono());
+                            actividad.setFecha(actividads.get(b).getFecha());
+                            actividad.setObra(actividads.get(b).getObra());
+                            actividades.add(actividad);
+                        }
+
+                        actividads.clear();
+                        swipeRefresh.setRefreshing(false);
+                        ProgramacionAdapter adapter = new ProgramacionAdapter(actividades);
+                        recycler.setAdapter(adapter);
+
+                    }
+
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
 
             }
         }, new Response.ErrorListener() {
@@ -220,7 +288,12 @@ public class ProgramacionFragment extends Fragment implements SwipeRefreshLayout
         novedad.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showAlertNovedad(title,position);
+                if(actividades.get(position).getNum_element() == null){
+                    mensajeAlertaTextViewError("Tienes que registrar primero los elementos!.", 3000);
+                }else {
+                    showAlertNovedad(title,position);
+                }
+
                 dialog.cancel();
             }
         });
@@ -228,7 +301,13 @@ public class ProgramacionFragment extends Fragment implements SwipeRefreshLayout
         construida.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showAlertConstruida(title, position);
+
+                if(actividades.get(position).getNum_element() == null){
+                    mensajeAlertaTextViewError("Tienes que registrar primero los elementos!.", 3000);
+                }else {
+                    showAlertConstruida(title, position);
+                }
+
                 dialog.cancel();
             }
         });
@@ -237,7 +316,7 @@ public class ProgramacionFragment extends Fragment implements SwipeRefreshLayout
         dialog.show();
     }
 
-    private void showAlertInfo(String title, int position) {
+    private void showAlertInfo(String title, final int position) {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
 
@@ -249,10 +328,27 @@ public class ProgramacionFragment extends Fragment implements SwipeRefreshLayout
         final TextView telefono = (TextView) viewInflated.findViewById(R.id.textViewTelefonoDA);
         final TextView codigo = (TextView) viewInflated.findViewById(R.id.textViewCodigoDA);
         final TextView obra = (TextView) viewInflated.findViewById(R.id.textViewFechaDA);
+        final ImageButton add = (ImageButton) viewInflated.findViewById(R.id.btn_add_code);
 
-        telefono.setText(actividads.get(position).getTelefono());
-        codigo.setText(actividads.get(position).getCodigo());
-        obra.setText(actividads.get(position).getFecha());
+
+
+
+
+        if(actividades.get(position).getNum_element()!=null){
+            add.setVisibility(viewInflated.GONE);
+        }
+        add.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                codig.setCode(actividades.get(position).getCodigo());
+                add.setEnabled(false);
+                add.setImageResource(R.drawable.ic_done);
+            }
+        });
+
+        telefono.setText(actividades.get(position).getTelefono());
+        codigo.setText(actividades.get(position).getCodigo());
+        obra.setText(actividades.get(position).getFecha());
 
 
 
@@ -287,7 +383,7 @@ public class ProgramacionFragment extends Fragment implements SwipeRefreshLayout
                 String ac = acta.getText().toString().trim();
                 if(ac.length() > 0){
 
-                    cargarWebServiceUpdateConstruida(actividads.get(position).getId().toString(),medi,ac);
+                    cargarWebServiceUpdateConstruida(actividades.get(position).getId().toString(),medi,ac);
                 }
                 else
                     mensajeAlertaTextViewError("No ingresaste ningun numero de acta.", 3000);
@@ -388,7 +484,7 @@ public class ProgramacionFragment extends Fragment implements SwipeRefreshLayout
             public void onClick(DialogInterface dialog, int which) {
                 String boardName = input.getText().toString().trim();
                 if(boardName.length() > 0){
-                    cargarWebServiceRegisterNovedad(actividads.get(position).getId().toString(), boardName);
+                    cargarWebServiceRegisterNovedad(actividades.get(position).getId().toString(), boardName);
                 }
                 else
                     mensajeAlertaTextViewError("No ingresastes ningun valor", 3000);
@@ -399,6 +495,7 @@ public class ProgramacionFragment extends Fragment implements SwipeRefreshLayout
         dialog.show();
 
     }
+
 
     /*-----------MENSAJES DE ERROR Y REGISTRO--------*/
 

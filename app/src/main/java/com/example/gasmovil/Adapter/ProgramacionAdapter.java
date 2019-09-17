@@ -1,5 +1,6 @@
 package com.example.gasmovil.Adapter;
 
+import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
@@ -24,6 +25,7 @@ public class ProgramacionAdapter extends RecyclerView.Adapter<ProgramacionAdapte
 
     public ProgramacionAdapter(List<Actividad> actividads) {
         this.actividads = actividads;
+
     }
 
 
@@ -49,6 +51,8 @@ public class ProgramacionAdapter extends RecyclerView.Adapter<ProgramacionAdapte
 
         String dir = actividads.get(position).getDireccion() + " Barrio " + actividads.get(position).getBarrio();
         holder.txtDireccion.setText(dir);
+        holder.txtNumElement.setText(actividads.get(position).getNum_element());
+
 
     }
 
@@ -60,13 +64,14 @@ public class ProgramacionAdapter extends RecyclerView.Adapter<ProgramacionAdapte
 
     public class ProgramacionHolder extends RecyclerView.ViewHolder{
 
-        TextView txtNom,txtObra,txtDireccion;
+        TextView txtNom,txtObra,txtDireccion, txtNumElement;
         ImageButton imageBtnInfo;
 
         public ProgramacionHolder(View itemView) {
             super(itemView);
             txtNom=itemView.findViewById(R.id.textNombreA);
             txtObra=itemView.findViewById(R.id.textObraA);
+            txtNumElement=itemView.findViewById(R.id.image_letter);
             txtDireccion=itemView.findViewById(R.id.textDireccionA);
             imageBtnInfo =itemView.findViewById(R.id.btnInfoA);
         }

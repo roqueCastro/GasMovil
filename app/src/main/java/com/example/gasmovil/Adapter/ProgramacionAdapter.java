@@ -44,13 +44,11 @@ public class ProgramacionAdapter extends RecyclerView.Adapter<ProgramacionAdapte
 
     @Override
     public void onBindViewHolder(ProgramacionAdapter.ProgramacionHolder holder, final int position) {
-        final String nombre = actividads.get(position).getNombre() + " " + actividads.get(position).getApellido();
-        holder.txtNom.setText(nombre);
+        holder.txtNom.setText(actividads.get(position).getUsuario());
 
         holder.txtObra.setText(actividads.get(position).getObra());
 
-        String dir = actividads.get(position).getDireccion() + " Barrio " + actividads.get(position).getBarrio();
-        holder.txtDireccion.setText(dir);
+        holder.txtDireccion.setText(actividads.get(position).getDireccion());
         holder.txtNumElement.setText(actividads.get(position).getNum_element());
 
 

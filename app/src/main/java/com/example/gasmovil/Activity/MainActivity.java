@@ -1,9 +1,14 @@
 package com.example.gasmovil.Activity;
 
 import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Patterns;
@@ -35,6 +40,8 @@ public class MainActivity extends AppCompatActivity {
 
     SharedPreferences preferencias;
     String nom_base_datos = "usuarios_gas";
+
+    ProgressDialog progreso;
 
 
     RequestQueue request;
@@ -83,12 +90,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void cargarWebServiceUser(final String email) {
+        progreso= new ProgressDialog(MainActivity.this, R.style.AppCompatAlertDialogStyle);
+        progreso.setMessage("Validando Informacion..");
+        progreso.show();
+
         String url = Utilidades_Request.HTTP + Utilidades_Request.IP + Utilidades_Request.CARPETA + Utilidades_Request.ARCHIVO + email;
 
         jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 // Toast.makeText(getApplicationContext(), response.toString(), Toast.LENGTH_SHORT).show();
+                progreso.hide();
 
                 JSONArray json = response.optJSONArray("usuarios");
 
@@ -103,26 +115,19 @@ public class MainActivity extends AppCompatActivity {
                            habilitarBottonLogin();
                             return;
                         }else {
-
-                            String usua = preferencias.getString("Susua","");
-
-
-                            if (usua.equals(email)){
-                            }else {
-                                SharedPreferences.Editor editor=preferencias.edit();
-                                String ID = (String) jsonObject.get("ID");
-                                editor.putString("Sid", ID);
-                                editor.putString("Snom", (String) jsonObject.get("NOMBRE"));
-                                editor.putString("Sape", (String) jsonObject.get("APELLIDO"));
-                                editor.putString("Susua", (String) jsonObject.get("USUA"));
-                                editor.putString("Spass", (String) jsonObject.get("PASS"));
-                                editor.putString("Sdoc", (String) jsonObject.get("DOCUMENTO"));
-                                editor.putString("Stel", (String) jsonObject.get("TELEFONO"));
-                                editor.commit();
-                                mensajeAlertaTextViewVerdadero("Cambio de datos.", 350);
-                            }
+                            SharedPreferences.Editor editor=preferencias.edit();
+                            String ID = (String) jsonObject.get("ID");
+                            editor.putString("Sid", ID);
+                            editor.putString("Snom", (String) jsonObject.get("NOMBRE"));
+                            editor.putString("Sape", (String) jsonObject.get("APELLIDO"));
+                            editor.putString("Susua", (String) jsonObject.get("USUA"));
+                            editor.putString("Spass", (String) jsonObject.get("PASS"));
+                            editor.putString("Sdoc", (String) jsonObject.get("DOCUMENTO"));
+                            editor.putString("Stel", (String) jsonObject.get("TELEFONO"));
+                            editor.commit();
 
                             startActivity(new Intent(getApplicationContext(), Inicio.class));
+                            finish();
 
                         }
                     }
@@ -133,6 +138,7 @@ public class MainActivity extends AppCompatActivity {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
+                progreso.hide();
                 habilitarBottonLogin();
                 mensajeAlertaTextViewError("Error no hay conexion con la base de datos", 2000);
             }
@@ -181,8 +187,9 @@ public class MainActivity extends AppCompatActivity {
 
     @SuppressLint("ResourceAsColor")
     private void habilitarBottonLogin(){
+        _loginButton.setBackgroundColor(Color.parseColor("#00574B"));
         _loginButton.setEnabled(true);
-        _loginButton.setBackgroundColor(R.color.colorPrimary);
+
     }
 
     /*-----------MENSAJES DE ERROR Y REGISTRO--------*/

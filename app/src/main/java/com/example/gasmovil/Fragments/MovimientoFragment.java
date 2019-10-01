@@ -29,6 +29,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.gasmovil.Adapter.ElementoAdapter;
 import com.example.gasmovil.Adapter.MovimientoAdapter;
+import com.example.gasmovil.Entidades.AllCodigo;
 import com.example.gasmovil.Entidades.Codigo;
 import com.example.gasmovil.Entidades.Movimiento;
 import com.example.gasmovil.R;
@@ -58,6 +59,7 @@ public class MovimientoFragment extends Fragment {
     StringRequest stringRequest;
 
     ArrayList<Movimiento> movimientos;
+    ArrayList<AllCodigo> allCodigos;
 
     private Codigo codig;
 
@@ -79,6 +81,7 @@ public class MovimientoFragment extends Fragment {
         vista = inflater.inflate(R.layout.fragment_movimiento, container, false);
 
         movimientos = new ArrayList<>();
+        allCodigos = new ArrayList<>();
 
         codig = Codigo.getIntanse();
 
@@ -93,7 +96,8 @@ public class MovimientoFragment extends Fragment {
         recycler.setHasFixedSize(true);
 
 
-        cargarWebServiceMovimiento(id);
+        cargarcodiValidation(id);
+        //cargarWebServiceMovimiento(id);
         time(id);
         com.getbase.floatingactionbutton.FloatingActionButton fab = (com.getbase.floatingactionbutton.FloatingActionButton) vista.findViewById(R.id.fabM);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -104,6 +108,47 @@ public class MovimientoFragment extends Fragment {
         });
 
         return vista;
+    }
+
+    private void cargarcodiValidation(final String id) {
+        String url = Utilidades_Request.HTTP + Utilidades_Request.IP + Utilidades_Request.CARPETA + "wsJsonConsultaAllActivity.php";
+
+        jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                // Toast.makeText(getApplicationContext(), response.toString(), Toast.LENGTH_SHORT).show();
+
+                JSONArray json = response.optJSONArray("actividades");
+                AllCodigo allCodigo = null;
+                if(allCodigos.size()>0){
+                    allCodigos.clear();
+                }
+
+                try {
+                    for (int i = 0; i < json.length(); i++) {
+
+                        JSONObject jsonObject = null;
+                        jsonObject = json.getJSONObject(i);
+
+                        allCodigo = new AllCodigo();
+                        allCodigo.setCod(jsonObject.optString("codigo"));
+                        allCodigos.add(allCodigo);
+                    }
+
+                   cargarWebServiceMovimiento(id);
+
+                }catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                cargarWebServiceMovimiento(id);
+                mensajeAlertaTextViewError("Error no hay conexion con la base de datos..", 3000);
+            }
+        });
+        request.add(jsonObjectRequest);
     }
 
     private void cargarWebServiceMovimiento(String id) {
@@ -131,13 +176,17 @@ public class MovimientoFragment extends Fragment {
                         movimiento.setFecha_m(jsonObject.optString("fecha_movimiento"));
                         movimiento.setEstado_m(jsonObject.optString("estado"));
                         movimiento.setNombre_t(jsonObject.optString("NOM"));
-                        movimiento.setApellido_t(jsonObject.optString("APE"));
                         movimiento.setCodigo(jsonObject.optString("CODE"));
                         movimientos.add(movimiento);
                     }
 
-                    MovimientoAdapter adapter = new MovimientoAdapter(movimientos);
-                    recycler.setAdapter(adapter);
+                    if (movimientos.get(0).getId_m() == 0 || movimientos.get(0).getId_m() == 00){
+                        mensajeAlertaTextViewError("No hay Informacion para Visualizar!.", 3000);
+                    }else {
+                        MovimientoAdapter adapter = new MovimientoAdapter(movimientos);
+                        recycler.setAdapter(adapter);
+                    }
+
 
                 }catch (JSONException e) {
                     e.printStackTrace();
@@ -171,21 +220,18 @@ public class MovimientoFragment extends Fragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String boardName = input.getText().toString().trim();
-                int valCodigo= 0;
-                for (int i = 0; i<movimientos.size(); i++){
-                    if(movimientos.get(i).getCodigo().equals(boardName)){
-                        valCodigo = 1;
-                    }
-                }
                 if(boardName.length() > 0){
-                    if(valCodigo==0){
-                        cargarWebServiceRegistroMovimiento(boardName);
-                        codig.setCode(null);
-                    }else {
-                        mensajeAlertaTextViewError("Este codigo ya Existe!.", 3000);
-                        codig.setCode(null);
+                    int c=0;
+                    for (int i =0; i<allCodigos.size(); i++){
+                        if (allCodigos.get(i).getCod()==boardName){
+                            c=1;
+                        }
                     }
-
+                    if (c == 0){
+                        cargarWebServiceRegistroMovimiento(boardName);
+                    }else {
+                        mensajeAlertaTextViewError("Este codigo ya esta Registrado!.", 3000);
+                    }
                 }
                 else
                     mensajeAlertaTextViewError("No ingresastes ningun valor", 3000);
@@ -209,7 +255,12 @@ public class MovimientoFragment extends Fragment {
                 if(response.trim().equalsIgnoreCase("Noregistra")){
                     mensajeAlertaTextViewError("No registro ocurrio un error.. ", 3000);
 
-                }else{
+                }else if(response.trim().equalsIgnoreCase("no")){
+                    mensajeAlertaTextViewError("Codigo no existe en la base de datos", 3000);
+                }else if(response.trim().equalsIgnoreCase("nono")){
+                    mensajeAlertaTextViewError("Codigo ya Registrado!!", 3000);
+                }
+                else{
                     mensajeAlertaTextViewVerdadero("Movimiento registrado con Exito!.", 2000);
                     cargarWebServiceMovimiento(id);
                 }
@@ -238,7 +289,7 @@ public class MovimientoFragment extends Fragment {
         TimerTask t = new TimerTask() {
             @Override
             public void run() {
-                cargarWebServiceMovimiento(id);
+                cargarcodiValidation(id);
                 System.out.println("1");
             }
         };

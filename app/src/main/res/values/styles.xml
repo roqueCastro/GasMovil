@@ -26,6 +26,14 @@
         <item name="android:textSize">16sp</item>
     </style>
 
+    <!--ESTILE PROGRESG DIALOG-->
+
+    <style name="AppCompatAlertDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorAccent">@color/colorPrimaryDark</item>
+        <item name="android:textColorPrimary">@color/design_default_color_primary_dark</item>
+        <item name="android:background">@color/colorLight</item>
+    </style>
+
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 

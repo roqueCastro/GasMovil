@@ -61,7 +61,7 @@ public class ProgramacionFragment extends Fragment implements SwipeRefreshLayout
     private JsonObjectRequest jsonObjectRequest;
     private StringRequest stringRequest;
 
-    ArrayList<Actividad> actividads, actividades;
+    ArrayList<Actividad> actividads;
 
     private Codigo codig;
     private SharedPreferences preferencias;
@@ -79,7 +79,6 @@ public class ProgramacionFragment extends Fragment implements SwipeRefreshLayout
         vista = inflater.inflate(R.layout.fragment_programacion, container, false);
 
         actividads = new ArrayList<>();
-        actividades = new ArrayList<>();
 
         codig = Codigo.getIntanse();
 
@@ -99,8 +98,7 @@ public class ProgramacionFragment extends Fragment implements SwipeRefreshLayout
 
                     @Override
                     public void onItemClick(View view, int position) {
-                        String nombre = actividades.get(position).getNombre() + " " + actividades.get(position).getApellido();
-                        showAlertPrincipal(nombre, position);
+                        showAlertPrincipal(actividads.get(position).getUsuario(), position);
                         // do whatever
                     }
 
@@ -127,9 +125,6 @@ public class ProgramacionFragment extends Fragment implements SwipeRefreshLayout
         if(actividads.size()>0){
             actividads.clear();
         }
-        if (actividades.size()>0){
-            actividades.clear();
-        }
         String url = Utilidades_Request.HTTP + Utilidades_Request.IP + Utilidades_Request.CARPETA + "wsJsonConsultaProgramacion.php?id_user="+id;
 
         jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
@@ -149,17 +144,28 @@ public class ProgramacionFragment extends Fragment implements SwipeRefreshLayout
                         actividad = new Actividad();
                         actividad.setId(jsonObject.optInt("ID"));
                         actividad.setDireccion(jsonObject.optString("DIRECCION"));
-                        actividad.setBarrio(jsonObject.optString("BARRIO"));
                         actividad.setCodigo(jsonObject.optString("CODIGO"));
-                        actividad.setNombre(jsonObject.optString("USU_NOMBRE"));
-                        actividad.setApellido(jsonObject.optString("USU_APELLIDO"));
+                        actividad.setUsuario(jsonObject.optString("USUARIO"));
                         actividad.setTelefono(jsonObject.optString("telefono"));
-                        actividad.setFecha(jsonObject.optString("fecha"));
+                        actividad.setFecha(jsonObject.optString("FECHA"));
                         actividad.setObra(jsonObject.optString("OBRA"));
+                        if (jsonObject.optString("NUM_ELEMENT").equals("0")){
+                            actividad.setNum_element(null);
+                        }else{
+                            actividad.setNum_element(jsonObject.optString("NUM_ELEMENT"));
+                        }
+
                         actividads.add(actividad);
                     }
 
-                    cargarWebServiceProgramacionAll(id);
+                    swipeRefresh.setRefreshing(false);
+                    if (actividads.size()==0){
+                        mensajeAlertaTextViewError("No hay Informacion para visualizar!.", 3000);
+                    }else {
+                        ProgramacionAdapter adapter = new ProgramacionAdapter(actividads);
+                        recycler.setAdapter(adapter);
+                    }
+
 
                 }catch (JSONException e) {
                     e.printStackTrace();
@@ -175,91 +181,7 @@ public class ProgramacionFragment extends Fragment implements SwipeRefreshLayout
         request.add(jsonObjectRequest);
     }
 
-    private void cargarWebServiceProgramacionAll (String id){
-        String url = Utilidades_Request.HTTP + Utilidades_Request.IP + Utilidades_Request.CARPETA + "wsJsonConsultaProgramacionAll.php?id_user="+id;
 
-
-        jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                // Toast.makeText(getApplicationContext(), response.toString(), Toast.LENGTH_SHORT).show();
-
-
-                Actividad actividad =null;
-                JSONArray json = response.optJSONArray("actividad_all");
-                JSONObject jsonObject;
-
-                try {
-                    jsonObject=null;
-                    jsonObject = json.getJSONObject(0);
-
-                    if (jsonObject.optString("ID").equals("0") || jsonObject.optString("ID").equals("00") ){
-                        swipeRefresh.setRefreshing(false);
-                        ProgramacionAdapter adapter = new ProgramacionAdapter(actividads);
-                        recycler.setAdapter(adapter);
-                    }else{
-                        for (int i = 0; i < json.length(); i++) {
-
-                            jsonObject = null;
-                            jsonObject = json.getJSONObject(i);
-
-                            for (int a = 0; a < actividads.size(); a++ ){
-                                if(actividads.get(a).getId().toString().equals(jsonObject.getString("ID"))){
-                                    actividads.remove(a);
-                                    actividad = new Actividad();
-                                    actividad.setId(jsonObject.optInt("ID"));
-                                    actividad.setDireccion(jsonObject.optString("DIRECCION"));
-                                    actividad.setBarrio(jsonObject.optString("BARRIO"));
-                                    actividad.setCodigo(jsonObject.optString("CODIGO"));
-                                    actividad.setNombre(jsonObject.optString("USU_NOMBRE"));
-                                    actividad.setApellido(jsonObject.optString("USU_APELLIDO"));
-                                    actividad.setTelefono(jsonObject.optString("telefono"));
-                                    actividad.setFecha(jsonObject.optString("fecha"));
-                                    actividad.setObra(jsonObject.optString("OBRA"));
-                                    actividad.setNum_element(jsonObject.optString("NUM_ELEMENT"));
-                                    actividades.add(actividad);
-                                }
-                            }
-
-                        }
-
-                        for (int b = 0; b < actividads.size(); b++){
-                            actividad = new Actividad();
-                            actividad.setId(actividads.get(b).getId());
-                            actividad.setDireccion(actividads.get(b).getDireccion());
-                            actividad.setBarrio(actividads.get(b).getBarrio());
-                            actividad.setCodigo(actividads.get(b).getCodigo());
-                            actividad.setNombre(actividads.get(b).getNombre());
-                            actividad.setApellido(actividads.get(b).getApellido());
-                            actividad.setTelefono(actividads.get(b).getTelefono());
-                            actividad.setFecha(actividads.get(b).getFecha());
-                            actividad.setObra(actividads.get(b).getObra());
-                            actividades.add(actividad);
-                        }
-
-                        actividads.clear();
-                        swipeRefresh.setRefreshing(false);
-                        ProgramacionAdapter adapter = new ProgramacionAdapter(actividades);
-                        recycler.setAdapter(adapter);
-
-                    }
-
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                swipeRefresh.setRefreshing(false);
-                mensajeAlertaTextViewError("Error no hay conexion con la base de datos", 3000);
-            }
-        });
-        request.add(jsonObjectRequest);
-    }
 
     private void showAlertPrincipal(final String title, final int position) {
 
@@ -288,7 +210,7 @@ public class ProgramacionFragment extends Fragment implements SwipeRefreshLayout
         novedad.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(actividades.get(position).getNum_element() == null){
+                if(actividads.get(position).getNum_element() == null){
                     mensajeAlertaTextViewError("Tienes que registrar primero los elementos!.", 3000);
                 }else {
                     showAlertNovedad(title,position);
@@ -302,7 +224,7 @@ public class ProgramacionFragment extends Fragment implements SwipeRefreshLayout
             @Override
             public void onClick(View v) {
 
-                if(actividades.get(position).getNum_element() == null){
+                if(actividads.get(position).getNum_element() == null){
                     mensajeAlertaTextViewError("Tienes que registrar primero los elementos!.", 3000);
                 }else {
                     showAlertConstruida(title, position);
@@ -334,21 +256,21 @@ public class ProgramacionFragment extends Fragment implements SwipeRefreshLayout
 
 
 
-        if(actividades.get(position).getNum_element()!=null){
+        if(actividads.get(position).getNum_element()!=null){
             add.setVisibility(viewInflated.GONE);
         }
         add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                codig.setCode(actividades.get(position).getCodigo());
+                codig.setCode(actividads.get(position).getCodigo());
                 add.setEnabled(false);
                 add.setImageResource(R.drawable.ic_done);
             }
         });
 
-        telefono.setText(actividades.get(position).getTelefono());
-        codigo.setText(actividades.get(position).getCodigo());
-        obra.setText(actividades.get(position).getFecha());
+        telefono.setText(actividads.get(position).getTelefono());
+        codigo.setText(actividads.get(position).getCodigo());
+        obra.setText(actividads.get(position).getFecha());
 
 
 
@@ -383,7 +305,7 @@ public class ProgramacionFragment extends Fragment implements SwipeRefreshLayout
                 String ac = acta.getText().toString().trim();
                 if(ac.length() > 0){
 
-                    cargarWebServiceUpdateConstruida(actividades.get(position).getId().toString(),medi,ac);
+                    cargarWebServiceUpdateConstruida(actividads.get(position).getId().toString(),medi,ac);
                 }
                 else
                     mensajeAlertaTextViewError("No ingresaste ningun numero de acta.", 3000);
@@ -484,7 +406,7 @@ public class ProgramacionFragment extends Fragment implements SwipeRefreshLayout
             public void onClick(DialogInterface dialog, int which) {
                 String boardName = input.getText().toString().trim();
                 if(boardName.length() > 0){
-                    cargarWebServiceRegisterNovedad(actividades.get(position).getId().toString(), boardName);
+                    cargarWebServiceRegisterNovedad(actividads.get(position).getId().toString(), boardName);
                 }
                 else
                     mensajeAlertaTextViewError("No ingresastes ningun valor", 3000);

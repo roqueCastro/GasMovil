@@ -59,8 +59,7 @@ public class MovimientoAdapter extends RecyclerView.Adapter<MovimientoAdapter.Mo
 
         holder.txtFecha.setText(movimientos.get(position).getFecha_m());
 
-        String nombre = movimientos.get(position).getNombre_t() + " " + movimientos.get(position).getApellido_t();
-        holder.txtNom.setText(nombre);
+        holder.txtNom.setText(movimientos.get(position).getNombre_t());
 
 
         holder.imageBtnAddElement.setOnClickListener(new View.OnClickListener() {

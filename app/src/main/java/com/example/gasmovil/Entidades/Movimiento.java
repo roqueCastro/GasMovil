@@ -6,7 +6,7 @@ public class Movimiento {
     private String fecha_m;
     private String estado_m;
     private String nombre_t;
-    private String apellido_t;
+
     private String codigo;
 
 
@@ -42,13 +42,6 @@ public class Movimiento {
         this.nombre_t = nombre_t;
     }
 
-    public String getApellido_t() {
-        return apellido_t;
-    }
-
-    public void setApellido_t(String apellido_t) {
-        this.apellido_t = apellido_t;
-    }
 
     public String getCodigo() {
         return codigo;

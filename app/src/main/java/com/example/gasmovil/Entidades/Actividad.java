@@ -3,9 +3,7 @@ package com.example.gasmovil.Entidades;
 public class Actividad {
     private Integer id;
     private String direccion;
-    private String barrio;
-    private String nombre;
-    private String apellido;
+    private String usuario;
     private String codigo;
     private String fecha;
     private String telefono;
@@ -36,36 +34,20 @@ public class Actividad {
         this.id = id;
     }
 
+    public String getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(String usuario) {
+        this.usuario = usuario;
+    }
+
     public String getDireccion() {
         return direccion;
     }
 
     public void setDireccion(String direccion) {
         this.direccion = direccion;
-    }
-
-    public String getBarrio() {
-        return barrio;
-    }
-
-    public void setBarrio(String barrio) {
-        this.barrio = barrio;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    public String getApellido() {
-        return apellido;
-    }
-
-    public void setApellido(String apellido) {
-        this.apellido = apellido;
     }
 
     public String getTelefono() {

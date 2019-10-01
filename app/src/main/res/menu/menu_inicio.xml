@@ -2,10 +2,9 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/idMenuAjustes"
+        android:id="@+id/idMenuSalir"
         android:title="Ajustes"
-        android:icon="@drawable/ic_settings"
-        android:iconTint="@android:color/background_dark"
+        android:icon="@drawable/ic_power"
         app:showAsAction="always"
         />
 </menu>

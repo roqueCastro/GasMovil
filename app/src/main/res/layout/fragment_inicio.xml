@@ -10,15 +10,16 @@
     <!-- TODO: Update blank fragment layout -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <TextView
+        <ImageView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Inicio"
-            android:textColor="@android:color/background_dark"
-            android:textSize="46dp"/>
+            android:paddingTop="30dp"
+            android:layout_alignParentTop="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/logo_presta" />
 
     </LinearLayout>
 
